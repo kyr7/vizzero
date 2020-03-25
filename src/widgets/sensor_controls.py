@@ -45,7 +45,7 @@ class SensorControls(QGroupBox):
         self.update_com_items()
         self.simulate_checkbox.stateChanged.connect(self.simulate_clicked)
         self.sensor_port_input.currentIndexChanged.connect(self.com_port_changed)
-        self.sensor_port_input.activated.connect(self.update_com_items)
+        # self.sensor_port_input.activated.connect(self.update_com_items)
         self.amplitude_scale_input.textEdited.connect(self.amplitude_scale_changed)
 
     def draw_sensor_settings(self, sensor_settings: SensorSettings):
