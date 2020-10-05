@@ -1,6 +1,8 @@
 import sys
 import traceback
 
+from rx import zip, operators as op
+
 sys.path.append('file')
 sys.path.append('sensor')
 from sensor.sensor_wrapper import *
@@ -65,9 +67,11 @@ class SensorController:
     rx_sensor_settings_subject = None
     data_thread = None
 
-    def __init__(self):
+    def __init__(self, sensor_specific_info=''):
         self.rx_sensor_data_subject = Subject()
-        self.rx_sensor_settings_subject = BehaviorSubject(SensorSettings())
+        sensor_settings = SensorSettings()
+        sensor_settings.other_info = sensor_specific_info
+        self.rx_sensor_settings_subject = BehaviorSubject(sensor_settings)
 
     def start_data(self):
         if self.data_thread is None or not self.data_thread.data_running:
@@ -94,23 +98,42 @@ class SensorController:
 
 class CoreController:
     file_controller = None
-    sensor_controller = None
     file_sensor_subs = None
+    sensor_controllers = []
+    multisensor_data_subject: Subject = Subject()
 
     def __init__(self):
         self.file_controller = FileController()
-        self.sensor_controller = SensorController()
+        self.sensor_controllers.append(SensorController('1'))
+        self.sensor_controllers.append(SensorController('2'))
+
+    def _concat_sensors(self, sens_data):
+        sensors_data_list = [*sens_data]
+        min_length = min(map(lambda x: x.shape[0], [*sens_data]))
+        trimmed = list(map(lambda x: x[:min_length], sensors_data_list))
+        return np.concatenate(trimmed, axis=1)
 
     def start_data(self):
-        self.sensor_controller.start_data()
+        rx_sensor_subjects = []
+        for sensor_controller in self.sensor_controllers:
+            sensor_controller.start_data()
+            rx_sensor_subjects.append(sensor_controller.rx_sensor_data_subject)
+        sensor_subject = zip(
+            self.sensor_controllers[0].rx_sensor_data_subject,
+            self.sensor_controllers[1].rx_sensor_data_subject).pipe(
+            op.map(self._concat_sensors)
+        )
+        # sensor_subject = self.sensor_controllers[0].rx_sensor_data_subject
+        sensor_subject.subscribe(self.multisensor_data_subject)
 
     def stop_data(self):
-        self.sensor_controller.stop_data()
+        for sensor_controller in self.sensor_controllers:
+            sensor_controller.stop_data()
 
     def write_to_file(self, dir, file_name):
         if self.file_sensor_subs is None:
             self.file_controller.start_file(dir, file_name)
-            self.file_sensor_subs = self.sensor_controller.rx_sensor_data_subject.subscribe(
+            self.file_sensor_subs = self.multisensor_data_subject.subscribe(
                 self.file_controller.append_data)
 
     def finish_file(self):

@@ -34,6 +34,7 @@ class SensorSettings:
     bandpass_low_frequency = 5
     bandpass_high_frequency = 100
     amplitude_scale = 0.001
+    other_info = ''
 
 
 class SensorWrapper:
@@ -48,6 +49,8 @@ class SensorWrapper:
 
     def __init__(self, rx_sensor_settings_subject: BehaviorSubject):
         self.sensor_settings = rx_sensor_settings_subject.value
+        self.params.other_info = self.sensor_settings.other_info
+
         self.rx_sensor_settings_subject_subscription = rx_sensor_settings_subject.subscribe(self.set_sensor_settings)
         if self.sensor_settings.simulation:
             self.board_id = BoardIds.SYNTHETIC_BOARD.value

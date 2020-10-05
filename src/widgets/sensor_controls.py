@@ -1,5 +1,5 @@
 from PySide2.QtGui import QDoubleValidator
-from PySide2.QtWidgets import QGridLayout, QPushButton, QLabel, QCheckBox, QGroupBox, QLineEdit, QComboBox
+from PySide2.QtWidgets import QGridLayout, QLabel, QCheckBox, QGroupBox, QLineEdit, QComboBox
 
 from core.core import SensorController
 from sensor.sensor_wrapper import SensorSettings
@@ -115,14 +115,6 @@ class SensorControls(QGroupBox):
         notch_layout.addWidget(notch_input_label, 1, 0)
         notch_layout.addWidget(notch_input, 1, 1)
         layout.addWidget(notch_group, 2, 0, 1, 2)
-
-        # start/stop
-        btn_start = QPushButton("Start data")
-        btn_stop = QPushButton("Stop data")
-        btn_start.clicked.connect(sensor_controller.start_data)
-        btn_stop.clicked.connect(sensor_controller.stop_data)
-        layout.addWidget(btn_start, 3, 0)
-        layout.addWidget(btn_stop, 3, 1)
 
         self.bind_controls()
         self.sensor_controller.rx_sensor_settings_subject.subscribe(self.draw_sensor_settings)

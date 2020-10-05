@@ -76,8 +76,8 @@ class RecordHandFixed(core.core.BasePlugin):
         self.waited_sec += 1
 
     def on_gesture_selection(self, gesture):
-        if not self.core_controller.sensor_controller.sensor_connected():
-            self.core_controller.sensor_controller.start_data()
+        # if not self.core_controller.sensor_controller.sensor_connected():
+        #    self.core_controller.sensor_controller.start_data()
         self.gesture_buttons[gesture].setChecked(True)
         self.not_recorded_gestures.discard(gesture)
         for button in self.gesture_buttons.values():

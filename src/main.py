@@ -45,8 +45,17 @@ class MainWindow(QMainWindow):
 
         self.myo_canvas = RealtimeCanvas(self.core_controller)
         self.myo_canvas.native.setParent(window)
-        self.sensor_controls = SensorControls(self.core_controller.sensor_controller)
+        self.sensor_controls = SensorControls(self.core_controller.sensor_controllers[0])
         vbox.addWidget(self.sensor_controls)
+
+        # start/stop
+        btn_start = QPushButton("Start data")
+        btn_stop = QPushButton("Stop data")
+        btn_start.clicked.connect(self.core_controller.start_data)
+        btn_stop.clicked.connect(self.core_controller.stop_data)
+        vbox.addWidget(btn_start)
+        vbox.addWidget(btn_stop)
+
         vbox.addWidget(self.myo_canvas.native)
 
         self.node_proc = None
@@ -59,7 +68,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(splitter1)
 
-        self.core_controller.sensor_controller.rx_sensor_data_subject\
+        self.core_controller.multisensor_data_subject\
             .subscribe(self.myo_canvas.feed_data, scheduler=self.draw_data_scheduler)
 
     def closeEvent(self, event):

@@ -17,7 +17,7 @@ from core.core import CoreController
 from sensor.sensor_wrapper import SAMPLING_RATE, MIN_READ_BUFFER_DEPTH
 
 # Number of cols and rows in the table.
-nrows = 8
+nrows = 16
 ncols = 1
 # number of datapoints to add at a time
 step = 5
@@ -32,7 +32,7 @@ n = 500
 
 y = np.zeros((m, n)).astype(np.float32)
 
-data_channels = 8
+data_channels = 16
 
 # Color of each vertex (TODO: make it more efficient by using a GLSL-based
 # color map and the index).
@@ -164,10 +164,10 @@ class RealtimeCanvas(app.Canvas):
             return
         if smooth:
             sleep(length / SAMPLING_RATE)
-        sensor_settings = self.core_controller.sensor_controller.get_sensor_settings()
+        sensor_settings = self.core_controller.sensor_controllers[0].get_sensor_settings()
         k = data.shape[0]
         y[:, :-k] = y[:, k:]
-        y[:, -k:] = np.rot90(data) * sensor_settings.amplitude_scale
+        y[:, -k:] = np.rot90(data) * data_channels # sensor_settings.amplitude_scale
 
         self.program['a_position'].set_data(y.ravel().astype(np.float32))
         self.update()
