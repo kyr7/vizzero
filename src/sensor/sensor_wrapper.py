@@ -26,7 +26,7 @@ def bandpass(data, start=5, stop=100, fs=SAMPLING_RATE):
 
 
 class SensorSettings:
-    simulation = True
+    simulation = False
     sensor_com_port = "/dev/ttyACM1"
     notch_filter = True
     bandpass_filter = True

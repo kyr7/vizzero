@@ -67,10 +67,8 @@ class SensorController:
     rx_sensor_settings_subject = None
     data_thread = None
 
-    def __init__(self, sensor_specific_info=''):
+    def __init__(self, sensor_settings: SensorSettings = SensorSettings()):
         self.rx_sensor_data_subject = Subject()
-        sensor_settings = SensorSettings()
-        sensor_settings.other_info = sensor_specific_info
         self.rx_sensor_settings_subject = BehaviorSubject(sensor_settings)
 
     def start_data(self):
@@ -104,8 +102,16 @@ class CoreController:
 
     def __init__(self):
         self.file_controller = FileController()
-        self.sensor_controllers.append(SensorController('1'))
-        self.sensor_controllers.append(SensorController('2'))
+
+        sensor_settings1 = SensorSettings()
+        # sensor_settings1.other_info = '1'
+        sensor_settings1.sensor_com_port = "/dev/ttyACM2"
+        self.sensor_controllers.append(SensorController(sensor_settings1))
+
+        sensor_settings2 = SensorSettings()
+        # sensor_settings2.other_info = '2'
+        sensor_settings2.sensor_com_port = "/dev/ttyACM3"
+        self.sensor_controllers.append(SensorController(sensor_settings2))
 
     def _concat_sensors(self, sens_data):
         sensors_data_list = [*sens_data]
