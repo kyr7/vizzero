@@ -5,7 +5,7 @@ from core.core import *
 from plugins.handsim.plugin import Handsim
 from plugins.record_hand_fixed.plugin import RecordHandFixed
 from widgets.realtime import RealtimeCanvas
-from widgets.sensor_controls import SensorControls
+from widgets.sensor_controls import SensorControlsWidget
 from rx.scheduler import ThreadPoolScheduler
 
 
@@ -45,7 +45,7 @@ class MainWindow(QMainWindow):
 
         self.myo_canvas = RealtimeCanvas(self.core_controller)
         self.myo_canvas.native.setParent(window)
-        self.sensor_controls = SensorControls(self.core_controller)
+        self.sensor_controls = SensorControlsWidget(self.core_controller)
         vbox.addWidget(self.sensor_controls)
 
         # start/stop

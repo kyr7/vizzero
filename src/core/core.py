@@ -59,7 +59,8 @@ class DataThread(threading.Thread):
             traceback.print_exc(file=sys.stdout)
             self.stop()
         finally:
-            self.sensor.disconnect()
+            if self.sensor is not None:
+                self.sensor.disconnect()
 
 
 class SensorController:
@@ -104,12 +105,12 @@ class CoreController:
         self.file_controller = FileController()
 
         sensor_settings1 = SensorSettings()
-        # sensor_settings1.other_info = '1'
+        sensor_settings1.other_info = '1'
         sensor_settings1.sensor_com_port = "/dev/ttyACM2"
         self.sensor_controllers.append(SensorController(sensor_settings1))
 
         sensor_settings2 = SensorSettings()
-        # sensor_settings2.other_info = '2'
+        sensor_settings2.other_info = '2'
         sensor_settings2.sensor_com_port = "/dev/ttyACM3"
         self.sensor_controllers.append(SensorController(sensor_settings2))
 

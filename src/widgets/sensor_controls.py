@@ -3,15 +3,15 @@ from PySide2.QtWidgets import QGridLayout, QLabel, QCheckBox, QGroupBox, QLineEd
 
 from core.core import CoreController
 from sensor.sensor_wrapper import SensorSettings
-from widgets.sensor_connector import SensorConnector
+from widgets.sensor_connector import SensorConnectorWidget
 
 
-class SensorControls(QGroupBox):
+class SensorControlsWidget(QGroupBox):
 
     def __init__(self, core_controller: CoreController):
         super().__init__()
+        self.core_controller = core_controller
         self.amplitude_scale_input: QLineEdit = QLineEdit()
-        self.sensor_controls = []
         layout = QGridLayout()
         self.sensors_group = QGroupBox()
         self.sensors_layout = QVBoxLayout()
@@ -64,24 +64,23 @@ class SensorControls(QGroupBox):
         amplitude_scale_label = QLabel('Scale')
         scale_layout.addWidget(amplitude_scale_label, 2, 0)
         scale_layout.addWidget(self.amplitude_scale_input, 2, 1)
-
         self.bind_controls()
 
-    def add_sensor(self, sensor_connector: SensorConnector):
+    def add_sensor(self, sensor_connector: SensorConnectorWidget):
         self.sensors_layout.addWidget(sensor_connector)
-        self.sensor_controls.append(sensor_connector)
-
-    def remove_sensor(self, sensor_connector: SensorConnector):
-        self.sensors_layout.addWidget(sensor_connector)
-        self.sensor_controls.append(sensor_connector)
+        sensor_connector.sensor_controller.rx_sensor_settings_subject.subscribe(sensor_connector.draw_sensor_settings)
 
     def bind_controls(self):
         self.amplitude_scale_input.textEdited.connect(self.amplitude_scale_changed)
-        for sensor in self.sensor_controls:
-            sensor.sensor_controller.rx_sensor_settings_subject.subscribe(self.draw_sensor_settings)
+        for sensor in self.core_controller.sensor_controllers:
+            sensor_connector = SensorConnectorWidget(sensor)
+            self.add_sensor(sensor_connector)
 
     def amplitude_scale_changed(self, amplitude_scale):
-        for sensor in self.sensor_controls:
+        for sensor in self.core_controller.sensor_controllers:
             sensor_settings: SensorSettings = sensor.sensor_controller.get_sensor_settings()
             sensor_settings.amplitude_scale = amplitude_scale
-            self.sensor_controller.update_sensor_settings(sensor_settings)
+            amplitude_text_position = self.amplitude_scale_input.cursorPosition()
+            self.amplitude_scale_input.setText(sensor_settings.amplitude_scale.__str__())
+            self.amplitude_scale_input.setCursorPosition(min(amplitude_text_position, self.amplitude_scale_input.cursorPosition()))
+
